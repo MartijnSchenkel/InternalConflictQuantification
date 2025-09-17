@@ -94,29 +94,27 @@ d4w_XY <- d4w_ZW <- tibble(Genotype = character(),
               Uw = numeric(),
               p = numeric())
 
-# Calculate resulting unity scores when 
+# Calculate resulting unity scores when
 for(p in seq(0, 1, 0.005))
 {
   if(p %in% seq(0,1, 0.1)) {print(p)}
-  dt <- d3z_XY %>% mutate(Uz = 1 - p * Count * (zX + zY) / 2, p = p) %>% 
+  dt <- d3z_XY %>% mutate(Uz = 1 - p * Count * (zX + zY) / 2, p = p) %>%
     select(Genotype, n, p, Uz)
-  d4z_XY <- d4z_XY %>% full_join(dt, by = names(dt)) 
-  
-  dt <- d3w_XY %>% mutate(Uw = 1 - p * Count * (wX + wY) / 2, p = p) %>% 
+  d4z_XY <- d4z_XY %>% full_join(dt, by = names(dt))
+
+  dt <- d3w_XY %>% mutate(Uw = 1 - p * Count * (wX + wY) / 2, p = p) %>%
     select(Genotype, n, p, Uw)
-  d4w_XY <- d4w_XY %>% full_join(dt, by = names(dt)) 
-  
-  dt <- d3z_ZW %>% mutate(Uz = 1 - p * Count * (zZ + zW) / 2, p = p) %>% 
+  d4w_XY <- d4w_XY %>% full_join(dt, by = names(dt))
+
+  dt <- d3z_ZW %>% mutate(Uz = 1 - p * Count * (zZ + zW) / 2, p = p) %>%
     select(Genotype, n, p, Uz)
-  d4z_ZW <- d4z_ZW %>% full_join(dt, by = names(dt)) 
-  
-  dt <- d3w_ZW %>% mutate(Uw = 1 - p * Count * (wZ + wW) / 2, p = p) %>% 
+  d4z_ZW <- d4z_ZW %>% full_join(dt, by = names(dt))
+
+  dt <- d3w_ZW %>% mutate(Uw = 1 - p * Count * (wZ + wW) / 2, p = p) %>%
     select(Genotype, n, p, Uw)
-  d4w_ZW <- d4w_ZW %>% full_join(dt, by = names(dt)) 
+  d4w_ZW <- d4w_ZW %>% full_join(dt, by = names(dt))
 }
 
-d4w_ZW %>% filter(n == 1.005, p == 1)
-d4z_ZW %>% filter(n == 1.005)
 # ========================== #
 # ---- Data visualization ----
 # ========================== #
@@ -130,8 +128,8 @@ pz_XY <- d4z_XY %>% ggplot(aes(n, p)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
   labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
        y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
+       fill = bquote(italic(U[z]))) + #,
+       #title = bquote("Trait unity ("*italic(U[z])*")")) +
   guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5))+ 
   theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
         strip.text = element_text(color = "white"),
@@ -148,8 +146,8 @@ pw_XY <- d4w_XY %>% ggplot(aes(n, p)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
   labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
        y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[w])),
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
+       fill = bquote(italic(U[w]))) + #,
+       # title = bquote("Fitness unity ("*italic(U[w])*")")) +
   guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
   theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
         strip.text = element_text(color = "white"),
@@ -166,8 +164,8 @@ pz_ZW <- d4z_ZW %>% ggplot(aes(n, p)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
   labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
        y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
+       fill = bquote(italic(U[z]))) + #,
+       # title = bquote("Trait unity ("*italic(U[z])*")")) +
   guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5))+ 
   theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
         strip.text = element_text(color = "white"),
@@ -184,168 +182,60 @@ pw_ZW <- d4w_ZW %>% ggplot(aes(n, p)) +
   scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
   labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
        y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[w])),
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
+       fill = bquote(italic(U[w]))) + #,
+       # title = bquote("Fitness unity ("*italic(U[w])*")")) +
   guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
   theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
         strip.text = element_text(color = "white"),
         panel.spacing.x = unit(1.5, "lines"),
         plot.title = element_text(hjust = 0.5),
         legend.title = element_text(hjust = 0.5))
-
-
 
 # Generate plot for XX/XY, i.e. Figure 3.
 p1_XY <- plot_grid(pz_XY + theme(legend.position = "none"),
                    NULL,
                    pw_XY + theme(legend.position = "none"), ncol = 1,
-                   rel_heights = c(10,0.5,10))
+                   rel_heights = c(10,0.5,10), labels = c("A", "", "B", ""))
 
-legend <- get_legend(pz_XY + labs(fill = "Unity\n(±0.025)") + 
-                       guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)))
+# Generate faux legend that uses entire range of values between 0 and 1, rather than just observed values.
+xf <- seq(0.025, 1.025, 0.05)
+y <- rep(1, length(xf))
+
+dt <- tibble(xf, y)
+pt <- ggplot(data = dt, aes(xf, y, fill = factor(xf))) + 
+  geom_col(aes(z = xf), color = "black") +
+  scale_fill_viridis(discrete = T, drop = F, labels= seq(0,1,0.05)) + 
+  labs(fill = "Unity\n(±0.025)") + 
+  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5))
+
+
+legend <- get_legend(pt)
 
 p2_XY <- plot_grid(p1_XY, legend, ncol = 2, rel_widths = c(5,1))
 
-pdf(file = "Figure_3.pdf",
-    width = 7, height = 7)
+pdf(file = "Figure_4.pdf", width = 7, height = 7)
 p2_XY
 dev.off()
 
-png(file = "Figure_3.png",
+png(file = "Figure_4.png",
     width = 7, height = 7, units = "in", res = 1000)
 p2_XY
 dev.off()
 
-# Generate plot for ZZ/ZW, i.e. Supplementary Figure 5.
+# Generate plot for ZZ/ZW, i.e. Supplementary Figure 4.
 p1_ZW <- plot_grid(pz_ZW + theme(legend.position = "none"), 
                    NULL,
                    pw_ZW + theme(legend.position = "none"), ncol = 1,
-                   rel_heights = c(10,0.5,10))
+                   rel_heights = c(10,0.5,10), labels = c("A", "", "B", ""))
 
 p2_ZW <- plot_grid(p1_ZW, legend, ncol = 2, rel_widths = c(5,1))
 
-pdf(file = "Supplementary_Figure_5.pdf", width = 7, height = 7)
+pdf(file = "Supplementary_Figure_4.pdf", width = 7, height = 7)
 p2_ZW
 dev.off()
 
-png(file = "Supplementary_Figure_5.png", width = 7, height = 7, units = "in", res = 1000)
+png(file = "Supplementary_Figure_4.png", width = 7, height = 7, units = "in", res = 1000)
 p2_ZW
-dev.off()
-
-# ============================ #
-# ---- Larger bins versions ----
-# ============================ #
-
-# Plot trait unity values in XX/XY individuals
-pz_XY_L <- d4z_XY %>% ggplot(aes(n, p)) + 
-  geom_contour_filled(aes(z = Uz), breaks = seq(-0.05, 1.05, 0.1), color = rgb(0.2,0.2,0.2)) + 
-  scale_fill_viridis(discrete = T, drop = F, labels = seq(0,1,0.1)) +
-  facet_wrap(~Genotype) + 
-  scale_x_continuous(limits = c(1,20), expand = c(0,0), breaks = c(1,2,3,5,10,15,20)) +
-  scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
-  labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
-       y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5))+ 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-# Plot fitness unity values in XX/XY individuals
-pw_XY_L <- d4w_XY %>% ggplot(aes(n, p)) + 
-  geom_contour_filled(aes(z = Uw), breaks = seq(-0.05, 1.05, 0.1), color = rgb(0.2,0.2,0.2)) + 
-  scale_fill_viridis(discrete = T, drop = F, labels = seq(0,1,0.1)) +
-  facet_wrap(~Genotype) + 
-  scale_x_continuous(limits = c(1,20), expand = c(0,0), breaks = c(1,2,3,5,10,15,20)) +
-  scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
-  labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
-       y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[w])),
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-# Plot trait unity values in ZZ/ZW individuals
-pz_ZW_L <- d4z_ZW %>% ggplot(aes(n, p)) + 
-  geom_contour_filled(aes(z = Uz), breaks = seq(-0.05, 1.05, 0.1), color = rgb(0.2,0.2,0.2)) + 
-  scale_fill_viridis(discrete = T, drop = F, labels = seq(0,1,0.1)) +
-  facet_wrap(~Genotype) + 
-  scale_x_continuous(limits = c(1,20), expand = c(0,0), breaks = c(1,2,3,5,10,15,20)) +
-  scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
-  labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
-       y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5))+ 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-# Plot fitness unity values in ZZ/ZW individuals
-pw_ZW_L <- d4w_ZW %>% ggplot(aes(n, p)) + 
-  geom_contour_filled(aes(z = Uw), breaks = seq(-0.05, 1.05, 0.1), color = rgb(0.2,0.2,0.2)) + 
-  scale_fill_viridis(discrete = T, drop = F, labels = seq(0,1,0.1)) +
-  facet_wrap(~Genotype) + 
-  scale_x_continuous(limits = c(1,20), expand = c(0,0), breaks = c(1,2,3,5,10,15,20)) +
-  scale_y_continuous(limits = c(0,1), expand = c(0,0)) + 
-  labs(x = bquote("Number of foundresses per deme ("*italic(n)*")"), 
-       y = bquote("Fraction of genome ("*italic(p)*")"), 
-       fill = bquote(italic(U[w])),
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-
-# Generate plot for XX/XY, i.e. Figure 3.
-p1_XY_L <- plot_grid(pz_XY_L + theme(legend.position = "none"),
-                   NULL,
-                   pw_XY_L + theme(legend.position = "none"), ncol = 1,
-                   rel_heights = c(10,0.5,10))
-
-legend <- get_legend(pz_XY_L + labs(fill = "Unity\n(±0.05)") + 
-                       guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)))
-
-p2_XY_L <- plot_grid(p1_XY_L, legend, ncol = 2, rel_widths = c(5,1))
-
-pdf(file = "Figure_3_L.pdf",
-    width = 7, height = 7)
-p2_XY_L
-dev.off()
-
-png(file = "Figure_3_L.png",
-    width = 7, height = 7, units = "in", res = 1000)
-p2_XY_L
-dev.off()
-
-# Generate plot for ZZ/ZW, i.e. Supplementary Figure 5.
-p1_ZW_L <- plot_grid(pz_ZW_L + theme(legend.position = "none"), 
-                   NULL,
-                   pw_ZW_L + theme(legend.position = "none"), ncol = 1,
-                   rel_heights = c(10,0.5,10))
-
-p2_ZW_L <- plot_grid(p1_ZW_L, legend, ncol = 2, rel_widths = c(5,1))
-
-pdf(file = "Supplementary_Figure_5_L.pdf",
-    width = 7, height = 7)
-p2_ZW_L
-dev.off()
-
-png(file = "Supplementary_Figure_5_L.png",
-    width = 7, height = 7, units = "in", res = 1000)
-p2_ZW_L
 dev.off()
 
 # ========================== #
@@ -365,12 +255,9 @@ p1 <- d2 %>% filter(Genotype == "XX" & Gene == "X" |
         strip.text = element_text(color = "white"),
         panel.spacing.x = unit(1, "lines"),
         panel.grid.minor = element_blank()) +
-  labs(x = bquote("Foundresses ("*italic(n)*")"), y = bquote("Optimal strategy ("*italic(z)[G]^"*"*")"), fill = bquote(italic(U[w]))) +
+  labs(x = bquote("Foundresses ("*italic(n)*")"), y = bquote("Optimal strategy ("*italic(z)[P]^"*"*")"), fill = bquote(italic(U[w]))) +
   guides(color = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
   scale_color_viridis(option = "A", begin = 0.1, end = 0.8, discrete = T)
-p1
-
-
 
 # Relative optimality under full control
 p2 <- d3o %>% rename(X = oX, Y = oY, Z = oZ, W = oW) %>% 
@@ -391,7 +278,6 @@ p2 <- d3o %>% rename(X = oX, Y = oY, Z = oZ, W = oW) %>%
   labs(x = bquote("Foundresses ("*italic(n)*")"), y = "Relative fitness", fill = bquote(italic(U[w]))) +
   guides(color = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
   scale_color_viridis(option = "A", begin = 0.1, end = 0.8, discrete = T)
-p2
 
 legend <- get_legend(p1)
 pt <- plot_grid(p1 + theme(legend.position = "none"),
@@ -399,13 +285,11 @@ pt <- plot_grid(p1 + theme(legend.position = "none"),
         
                 ncol = 1, labels = LETTERS[1:2])
 pt2 <- plot_grid(pt, legend, ncol = 2, rel_widths = c(5,1))
-pt2
 
-
-pdf(file = "Supplementary_Figure_4.pdf", width = 9, height = 9)
+pdf(file = "Supplementary_Figure_3.pdf", width = 9, height = 9)
 pt2
 dev.off()
 
-png(file = "Supplementary_Figure_4.png", width = 9, height = 9, units = "in", res = 1000)
+png(file = "Supplementary_Figure_3.png", width = 9, height = 9, units = "in", res = 1000)
 pt2
 dev.off()

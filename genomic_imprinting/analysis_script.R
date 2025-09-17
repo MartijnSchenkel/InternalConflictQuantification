@@ -95,13 +95,9 @@ p1 <- dp %>% filter(k == 1) %>% ggplot(aes(R, z_0)) +
   scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4, 20, 4)) + 
   labs(x = bquote("Resources ("*italic(R)*")"),
        y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = bquote("Optimal allocation ("*{italic(z[i]^'*')}*")"))
+       fill = bquote("Optimal allocation ("*{italic(z)[C]^'*'}*")"))
 
 p1p <- basetheme(p1)
-
-
-
-
 
 pdf(file = "Supplementary_Figure_1.pdf", height = 8, width = 9)
 p1p
@@ -116,31 +112,6 @@ dev.off()
 # ---- Supplementary Figure 2 ----
 # ============================== #
 
-# Start with alternate version (continuous values, not binned)
-p2 <- dp3 %>% filter(k == 1) %>% ggplot(aes(R, z_0)) + 
-  geom_tile(aes(fill = Optimality)) +
-  facet_grid(Element ~ fc, labeller = label_parsed) + 
-  scale_fill_viridis() + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = bquote("Organismal optimality"))
-
-p2p <- basetheme(p2) + 
-  guides(fill = guide_colorbar(title.hjust = 0.5, title.position = "top")) + 
-  theme(legend.position = "bottom")
-
-pdf(file = "Supplementary_Figure_2_continuous.pdf", height = 5, width = 9)
-p2p
-dev.off()
-
-
-png(file = "Supplementary_Figure_2_continuous.png", height = 5, width = 9, res = 1000, units = "in")
-p2p
-dev.off()
-
-# Version actually used in manuscript
 p3 <- dp3 %>% filter(k == 1) %>% ggplot(aes(R, z_0)) + 
   geom_contour_filled(aes(z = Optimality), breaks = seq(0,1.05, 0.05), color = "black", linewidth = 0.25) +
   facet_grid(Element ~ fc, labeller = label_parsed) + 
@@ -164,9 +135,9 @@ png(file = "Supplementary_Figure_2.png", height = 5, width = 9, res = 1000, unit
 p3p
 dev.off()
 
-# ============================== #
-# ---- Supplementary Figure 3 ----
-# ============================== #
+# ================ #
+# ---- Figure 3 ----
+# ================ #
 
 # Part 3A
 pz <- dp5 %>% ggplot(aes(R, z_0)) + 
@@ -198,8 +169,19 @@ pw <- dp4 %>% filter(k == 1) %>% ggplot(aes(R, z_0)) +
         strip.text = element_text(color = "white"),
         panel.spacing.x = unit(1, "lines"))
 
-# Extract legend
-legend <- get_legend(pw)
+# Generate faux legend that uses entire range of values between 0 and 1, rather than just observed values.
+xf <- seq(0.025, 1.025, 0.05)
+y <- rep(1, length(xf))
+
+dt <- tibble(xf, y)
+pt <- ggplot(data = dt, aes(xf, y, fill = factor(xf))) + 
+  geom_col(aes(z = xf), color = "black") +
+  scale_fill_viridis(discrete = T, drop = F, labels= seq(0,1,0.05)) + 
+  labs(fill = "Unity\n(±0.025)") + 
+  guides(fill = guide_legend(ncol = 3, title.position = "top", title.hjust = 0.5))
+
+
+legend <- get_legend(pt)
 
 # Construct figure
 p1 <- plot_grid(pz + theme(legend.position = "none"),
@@ -208,213 +190,10 @@ p1 <- plot_grid(pz + theme(legend.position = "none"),
 p2 <- plot_grid(p1, legend, ncol = 2, rel_widths = c(5,1.5))
 
 # Generate output files
-pdf(file = "Supplementary_Figure_3.pdf", width = 9, height = 4.5)
+pdf(file = "Figure_3.pdf", width = 9, height = 4.5)
 p2
 dev.off()
 
-png(file = "Supplementary_Figure_3.png", width = 9, height = 4.5, units = "in", res = 1000)
-p2
-dev.off()
-
-# ================ #
-# ---- Figure 2 ----
-# ================ #
-
-# Disclaimer: We are producing multiple versions of this figure in this script.
-
-dp6a <- dp5 %>% filter(c %in% c(0.5, 1.5)) %>% 
-  mutate(Return = ifelse(c == 0.5, "Low efficiency", "High efficiency")) %>%
-  mutate(Return = factor(Return, levels = c("Low efficiency", "High efficiency")))
-
-dp6b <- dp4 %>% filter(c %in% c(0.5, 1.5)) %>% 
-  mutate(Return = ifelse(c == 0.5, "Low efficiency", "High efficiency")) %>%
-  mutate(Return = factor(Return, levels = c("Low efficiency", "High efficiency")))
-
-
-# Part 2 (top row)
-pz <- dp6a %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = 1 - (P+M)/2), color = "black", breaks = seq(-0.05, 1.05, 0.1),  linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6a$c))) + 
-  scale_fill_viridis(discrete = T, drop = F) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        text = element_text(size = 18),
-        axis.title = element_text(hjust = 0.5, size = 17),
-        plot.title = element_text(hjust = 0.5, size = 17),
-        legend.title = element_text(hjust = 0.5, size = 17))
-
-# Part 2 (bottom row)
-pw <- dp6b %>% filter(k == 1) %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = Uw), color = "black", breaks = seq(-0.05, 1.05, 0.1), linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6b$c))) + 
-  scale_fill_viridis(discrete = T, drop = F, labels= seq(0,1,0.1)) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = "Unity\n(±0.025)",
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        text = element_text(size = 18),
-        axis.title = element_text(hjust = 0.5, size = 17),
-        plot.title = element_text(hjust = 0.5, size = 17),
-        legend.title = element_text(hjust = 0.5, size = 17))
-
-# Extract legend
-legend <- get_legend(pw)
-
-# Construct figure
-p1 <- plot_grid(pz + theme(legend.position = "none"),
-                NULL,
-                pw + theme(legend.position = "none"),
-                ncol = 1, rel_heights = c(10,0.5,10))
-p2 <- plot_grid(p1, legend, ncol = 2, rel_widths = c(5,1))
-
-p2
-
-# Generate output files
-pdf(file = "Figure_2.pdf", width = 7, height = 7)
-p2
-dev.off()
-
-png(file = "Figure_2.png", width = 7, height = 7, units = "in", res = 1000)
-p2
-dev.off()
-
-
-# =============================== #
-# ---- Figure 2 - fine-grained ----
-# =============================== #
-
-# Part 2 (top row)
-pz <- dp6a %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = 1 - (P+M)/2), color = "black", breaks = seq(-0.025, 1.025, 0.05),  linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6a$c))) + 
-  scale_fill_viridis(discrete = T, drop = F) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        text = element_text(size = 18),
-        axis.title = element_text(hjust = 0.5, size = 17),
-        plot.title = element_text(hjust = 0.5, size = 17),
-        legend.title = element_text(hjust = 0.5, size = 17))
-
-# Part 3  (bottom row)
-pw <- dp6b %>% filter(k == 1) %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = Uw), color = "black", breaks = seq(-0.025, 1.025, 0.05), linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6b$c))) + 
-  scale_fill_viridis(discrete = T, drop = F, labels= seq(0,1,0.05)) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = "Unity\n(±0.025)",
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        text = element_text(size = 18),
-        axis.title = element_text(hjust = 0.5, size = 17),
-        plot.title = element_text(hjust = 0.5, size = 17),
-        legend.title = element_text(hjust = 0.5, size = 17))
-
-# Extract legend
-legend <- get_legend(pw)
-
-# Construct figure
-p1 <- plot_grid(pz + theme(legend.position = "none"),
-                NULL,
-                pw + theme(legend.position = "none"),
-                ncol = 1, rel_heights = c(10,0.5,10))
-p2 <- plot_grid(p1, legend, ncol = 2, rel_widths = c(5,1))
-
-p2
-
-# Generate output files
-pdf(file = "Figure_2_fine.pdf", width = 7, height = 7)
-p2
-dev.off()
-
-png(file = "Figure_2_fine.png", width = 7, height = 7, units = "in", res = 1000)
-p2
-dev.off()
-
-# =============================== #
-# ---- Figure 2 - fine-grained ----
-# =============================== #
-
-# Part 2 (top row)
-pz <- dp6a %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = 1 - (P+M)/2), color = "black", breaks = seq(-0.025, 1.025, 0.05),  linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6a$c))) + 
-  scale_fill_viridis(discrete = T, drop = F) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = bquote(italic(U[z])),
-       title = bquote("Trait unity ("*italic(U[z])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-# Part 3  (bottom row)
-pw <- dp6b %>% filter(k == 1) %>% ggplot(aes(R, z_0)) + 
-  geom_contour_filled(aes(z = Uw), color = "black", breaks = seq(-0.025, 1.025, 0.05), linewidth = 0.25) +
-  facet_wrap(~Return, ncol = length(unique(dp6b$c))) + 
-  scale_fill_viridis(discrete = T, drop = F, labels= seq(0,1,0.05)) + 
-  scale_y_continuous(expand = c(0,0)) + 
-  scale_x_continuous(expand = c(0,0), limits = c(4,20), breaks = seq(4,20,4)) + 
-  labs(x = bquote("Resources ("*italic(R)*")"),
-       y = bquote("Minimal cost ("*italic(z[0]*")")),
-       fill = "Unity\n(±0.025)",
-       title = bquote("Fitness unity ("*italic(U[w])*")")) +
-  guides(fill = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
-  theme(strip.background = element_rect(fill = rgb(0.2, 0.2, 0.2), color = rgb(0.2, 0.2, 0.2)),
-        strip.text = element_text(color = "white"),
-        panel.spacing.x = unit(1.5, "lines"),
-        plot.title = element_text(hjust = 0.5),
-        legend.title = element_text(hjust = 0.5))
-
-# Extract legend
-legend <- get_legend(pw)
-
-# Construct figure
-p1 <- plot_grid(pz + theme(legend.position = "none"),
-                NULL,
-                pw + theme(legend.position = "none"),
-                ncol = 1, rel_heights = c(10,0.5,10))
-p2 <- plot_grid(p1, legend, ncol = 2, rel_widths = c(5,1))
-
-p2
-
-# Generate output files
-pdf(file = "Figure_2_fine_small.pdf", width = 7, height = 7)
-p2
-dev.off()
-
-png(file = "Figure_2_fine_small.png", width = 7, height = 7, units = "in", res = 1000)
+png(file = "Figure_3.png", width = 9, height = 4.5, units = "in", res = 1000)
 p2
 dev.off()
